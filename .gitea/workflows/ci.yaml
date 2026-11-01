@@ -39,6 +39,17 @@ jobs:
           uv run ruff format --check .
           uv run mypy src
           uv run pytest -q
+      - name: Each extra installs and imports on its own (a client must never pull in FastAPI)
+        run: |
+          set -eu
+          uv build -q -o dist
+          wheel="$(ls dist/*.whl)"
+          for pair in client:client:fastapi server:fastapi:httpx; do
+            extra="${pair%%:*}"; rest="${pair#*:}"; module="${rest%%:*}"; absent="${rest#*:}"
+            uv venv -q "/tmp/x-${extra}"
+            VIRTUAL_ENV="/tmp/x-${extra}" uv pip install -q "${wheel}[${extra}]"
+            "/tmp/x-${extra}/bin/python" -I -c "import sys, warden.${module}; assert '${absent}' not in sys.modules, '${extra} pulled in ${absent}'"
+          done
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/v')
         env:

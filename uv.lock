@@ -457,46 +457,6 @@ wheels = [
 ]
 
 [[package]]
-name = "warden"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "pyyaml" },
-]
-
-[package.optional-dependencies]
-fastapi = [
-    { name = "fastapi" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "ruff" },
-    { name = "types-pyyaml" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", marker = "extra == 'fastapi'", specifier = "==0.162.0" },
-    { name = "pyyaml", specifier = "==6.0.3" },
-]
-provides-extras = ["fastapi"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "fastapi", specifier = "==0.162.0" },
-    { name = "httpx", specifier = "==0.28.1" },
-    { name = "mypy", specifier = "==1.20.0" },
-    { name = "pytest", specifier = "==9.2.0" },
-    { name = "ruff", specifier = "==0.17.3" },
-    { name = "types-pyyaml" },
-]
-
-[[package]]
 name = "ruff"
 version = "0.17.3"
 source = { registry = "https://pypi.org/simple" }
@@ -561,4 +521,48 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a3/26/b09b8010994eccc3c09092e6b34058f36a460eea2d4c3e8b910c695975a0/typing_inspection-0.4.4.tar.gz", hash = "sha256:547274fa6b0a561ccf549cc9524b999a578e737d015d8709d021f9d0d13bea47", size = 76928, upload-time = "2026-08-12T12:37:25.997Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl", hash = "sha256:65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147", size = 14750, upload-time = "2026-08-12T12:37:24.648Z" },
+]
+
+[[package]]
+name = "warden"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "pyyaml" },
+]
+
+[package.optional-dependencies]
+client = [
+    { name = "httpx" },
+]
+server = [
+    { name = "fastapi" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "ruff" },
+    { name = "types-pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", marker = "extra == 'server'", specifier = "==0.162.0" },
+    { name = "httpx", marker = "extra == 'client'", specifier = "==0.28.1" },
+    { name = "pyyaml", specifier = "==6.0.3" },
+]
+provides-extras = ["server", "client"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "fastapi", specifier = "==0.162.0" },
+    { name = "httpx", specifier = "==0.28.1" },
+    { name = "mypy", specifier = "==1.20.0" },
+    { name = "pytest", specifier = "==9.2.0" },
+    { name = "ruff", specifier = "==0.17.3" },
+    { name = "types-pyyaml" },
 ]
