@@ -1,0 +1,40 @@
+# Security and quality scans (ADR-0135 in quorum/platform), through the shared
+# actions in quorum-actions/ci-actions.
+#   trivy (every PR and push): blocks on any secret or a fixable CRITICAL
+#     vulnerability; misconfigurations reported, not blocking.
+#   sonar (push to main only): SonarQube Community Build analyses one branch
+#     per project, so a PR analysis would overwrite main's. The quality gate
+#     result is the job result.
+
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  trivy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+      - name: Secrets and vulnerabilities
+        uses: https://gitea.ops.quorumsystems.io/quorum-actions/ci-actions/trivy@v1
+      - name: Misconfigurations (report-only)
+        uses: https://gitea.ops.quorumsystems.io/quorum-actions/ci-actions/trivy@v1
+        with:
+          scan-type: config
+          severity: HIGH,CRITICAL
+          exit-code: '0'
+
+  sonar:
+    if: gitea.event_name == 'push'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+        with:
+          fetch-depth: 0
+      - uses: https://gitea.ops.quorumsystems.io/quorum-actions/ci-actions/sonar@v1
+        with:
+          host-url: ${{ vars.SONAR_HOST_URL }}
+          token: ${{ secrets.SONAR_TOKEN }}
