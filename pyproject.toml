@@ -1,12 +1,15 @@
 [project]
 name = "warden"
 version = "0.1.0"
-description = "Per-consumer API keys for Quorum services: grant model, FastAPI dependency, and a CLI over a SOPS file synced to Vault."
+description = "Per-consumer API keys for Quorum services: grant model, server dependency and access log, calling client, and a CLI over a SOPS file synced to Vault."
 requires-python = ">=3.13"
 dependencies = ["pyyaml==6.0.3"]
 
 [project.optional-dependencies]
-fastapi = ["fastapi==0.162.0"]
+# The service side (ServiceAuth, install, enforce): warden.fastapi.
+server = ["fastapi==0.162.0"]
+# The calling side (WardenAuth): warden.client. Never pulls in FastAPI.
+client = ["httpx==0.28.1"]
 
 [project.scripts]
 warden = "warden.cli:main"
