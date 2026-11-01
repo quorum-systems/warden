@@ -1,0 +1,50 @@
+# Lint, types, tests on every PR and push; a `v*` tag also builds the wheel and publishes it to the Gitea PyPI
+# registry (gitea.ops.quorumsystems.io/api/packages/quorum/pypi). Secrets: PACKAGE_REGISTRY_TOKEN (package write),
+# PACKAGE_REGISTRY_USERNAME optional (default quorum-ci).
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e  # v10.3.2
+        with:
+          version: 0.13.0
+          enable-cache: true
+      - name: sops and age (the CLI tests run the real binaries)
+        env:
+          SOPS_SHA256: e5bec3346a873ae91d871550f3e698c1aad962aff462a080e40f25fde17fef6b  # sops-v3.13.3.checksums.txt; amd64 runners (ubuntu-24.04 label, x86 per bowdler CI)
+        run: |
+          SUDO=$(command -v sudo || true)
+          curl -fsSLo sops https://github.com/getsops/sops/releases/download/v3.13.3/sops-v3.13.3.linux.amd64
+          echo "${SOPS_SHA256}  sops" | sha256sum -c -
+          $SUDO install -m 0755 sops /usr/local/bin/sops
+          $SUDO apt-get update -qq
+          $SUDO apt-get install -y -qq age
+      - run: uv sync --frozen
+      - run: |
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run mypy src
+          uv run pytest -q
+      - name: Publish
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          UV_PUBLISH_USERNAME: ${{ secrets.PACKAGE_REGISTRY_USERNAME || 'quorum-ci' }}
+          UV_PUBLISH_PASSWORD: ${{ secrets.PACKAGE_REGISTRY_TOKEN }}
+        run: |
+          test "v$(uv version --short)" = "${GITHUB_REF_NAME}"
+          uv build
+          uv publish --publish-url https://gitea.ops.quorumsystems.io/api/packages/quorum/pypi
