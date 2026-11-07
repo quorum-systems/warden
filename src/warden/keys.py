@@ -1,6 +1,7 @@
 """Keys: the token format, the SOPS keys file the operator edits, and the hash map a service loads.
 
-Keys file (`gitops/secrets/<group>/<service>/keys/service-keys.sops.yaml` in quorum/platform; only `token` is encrypted):
+Keys file (`gitops/secrets/<group>/<service>/keys/service-keys.sops.yaml` in quorum/platform; only `token` is
+encrypted):
 
     service: bowdler          # also the Vault path segment
     prefix: bdl               # every token starts with `<prefix>_`
