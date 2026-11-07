@@ -1,6 +1,6 @@
 [project]
 name = "warden"
-version = "0.1.1"
+version = "0.1.2"
 description = "Per-consumer API keys for Quorum services: grant model, server dependency and access log, calling client, and a CLI over a SOPS file synced to Vault."
 requires-python = ">=3.13"
 dependencies = ["pyyaml==6.0.3"]
