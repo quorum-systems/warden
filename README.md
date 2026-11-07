@@ -88,7 +88,7 @@ Published to the Gitea PyPI registry on a `v*` tag:
 ```toml
 [[tool.uv.index]]
 name = "quorum"
-url = "https://gitea.ops.quorumsystems.io/api/packages/quorum/pypi/simple"
+url = "https://gitea.ops.quorumsystems.io/api/packages/quorum-actions/pypi/simple"
 explicit = true
 
 [tool.uv.sources]
