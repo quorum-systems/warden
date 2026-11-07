@@ -4,7 +4,7 @@ Per-consumer API keys for Quorum services, one process for all of them: a grant 
 
 ## Model
 
-* **Keys file**, the source of truth, in quorum/platform: `gitops/secrets/<group>/<service>/service-keys.sops.yaml`. It holds the service's declared `grants` and one entry per consumer: `name`, `token`, `grants`, and `previous` during a rotation. Only `token` and `previous` are encrypted, so names and grants read in diffs. That needs this rule in platform's `.sops.yaml`, **above** the generic `gitops/secrets/` rule (sops uses the first match). warden refuses to write if the matching rule wouldn't encrypt tokens:
+* **Keys file**, the source of truth, in quorum/platform: `gitops/secrets/<group>/<service>/keys/service-keys.sops.yaml`. The `keys/` subdirectory matters: Argo CD's `sops-decrypt` plugin outputs every `*.sops.yaml` at the top of an app's directory as a manifest, so a keys file beside a service's Secrets would put plaintext tokens in rendered manifests. It holds the service's declared `grants` and one entry per consumer: `name`, `token`, `grants`, and `previous` during a rotation. Only `token` and `previous` are encrypted, so names and grants read in diffs. That needs this rule in platform's `.sops.yaml`, **above** the generic `gitops/secrets/` rule (sops uses the first match). warden refuses to write if the matching rule wouldn't encrypt tokens:
 
   ```yaml
   - path_regex: ^gitops/secrets/.*/service-keys\.sops\.yaml$
@@ -20,7 +20,7 @@ Per-consumer API keys for Quorum services, one process for all of them: a grant 
 ## CLI
 
 ```bash
-warden init    gitops/secrets/ai/bowdler/service-keys.sops.yaml --service bowdler --prefix bdl --grants moderations:create
+warden init    gitops/secrets/ai/bowdler/keys/service-keys.sops.yaml --service bowdler --prefix bdl --grants moderations:create
 warden declare <file> --grants moderations:create,moderations:read
 warden issue   <file> marked-words --grants '*'
 warden issue   <file> marked-words --grants '*' --rotate   # old token stays accepted as `previous`
