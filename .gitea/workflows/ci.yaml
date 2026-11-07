@@ -1,5 +1,6 @@
 # Lint, types, tests on every PR and push; a `v*` tag also builds the wheel and publishes it to the Gitea PyPI
-# registry (gitea.ops.quorumsystems.io/api/packages/quorum/pypi). Secrets: PACKAGE_REGISTRY_TOKEN (package write),
+# registry of the public org quorum-actions, so CI jobs and image builds install it with no token in the build.
+# Nothing confidential is in this package. Secrets: PACKAGE_REGISTRY_TOKEN (package write),
 # PACKAGE_REGISTRY_USERNAME optional (default quorum-ci).
 name: CI
 
@@ -58,4 +59,4 @@ jobs:
         run: |
           test "v$(uv version --short)" = "${GITHUB_REF_NAME}"
           uv build
-          uv publish --publish-url https://gitea.ops.quorumsystems.io/api/packages/quorum/pypi
+          uv publish --publish-url https://gitea.ops.quorumsystems.io/api/packages/quorum-actions/pypi
