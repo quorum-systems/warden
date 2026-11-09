@@ -160,8 +160,9 @@ def install(
     exactly 0.1.x. `buckets` are the duration histogram's upper bounds in seconds.
 
     Returns the `Metrics` handle when a registry was given, else None; call `metrics.seed_routes(app, prefix)` after
-    the routes exist to zero-init the per-route series. Raises ValueError if the registry already holds a series of
-    the same name (a second install, or the service's own `<service>_auth_failures_total`)."""
+    the routes exist to zero-init the per-route series. A second install for the same service on the same registry
+    replaces the first's collectors. Raises ValueError if the registry holds a series of the same name that warden did
+    not register (the service's own `<service>_auth_failures_total`)."""
     access = logging.getLogger(f"{service}.access")
     quiet = frozenset(unlogged)
     metrics = Metrics(service, registry, buckets) if registry is not None else None

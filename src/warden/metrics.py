@@ -24,12 +24,18 @@ counter has an open label space (a 404 route name or a 503 code is not knowable 
 seeded: `seed_routes` creates (method, route, code) for each route under a prefix, for the success codes you name.
 Anything else appears on first use, so alert on ratios against the seeded series, never on `absent()` of a rare code.
 
+A second `install` for the same service on the same registry replaces the first one's collectors: tests (and a
+service that rebuilds its app) call `create_app` many times against one module-level registry, and the counts that
+matter are the live app's. A collector of the same name that warden did not register (a service's own old
+`<service>_auth_failures_total`) still raises ValueError.
+
 `_created` timestamps are a process-wide switch in prometheus_client (`disable_created_metrics()`), not per registry;
 the service's own metrics module already decides that, and warden leaves it alone.
 """
 
 from __future__ import annotations
 
+import weakref
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal, get_args
 
@@ -56,11 +62,15 @@ _METHODS = frozenset({"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"
 OTHER_METHOD = "other"
 
 
+# registry -> service -> the Metrics installed there, so a re-install can take the previous collectors out first.
+_installed: weakref.WeakKeyDictionary[CollectorRegistry, dict[str, Metrics]] = weakref.WeakKeyDictionary()
+
+
 class Metrics:
     """The three warden collectors on one registry. Built by `warden.fastapi.install`; hold the return value to call
-    `seed_routes`. Registering twice on one registry raises ValueError (prometheus_client's duplicate-name check),
-    which is the right failure: it means two installs, or a service still defining its own
-    `<service>_auth_failures_total` (delete that one when adopting warden 0.2)."""
+    `seed_routes`. A later install for the same service on the same registry unregisters this one. A same-named
+    collector warden did not register raises ValueError (prometheus_client's duplicate-name check), which is the right
+    failure: a service still defining its own `<service>_auth_failures_total` (delete it when adopting warden 0.2)."""
 
     def __init__(
         self,
@@ -68,6 +78,10 @@ class Metrics:
         registry: CollectorRegistry,
         buckets: Sequence[float] = DEFAULT_BUCKETS,
     ) -> None:
+        installed = _installed.setdefault(registry, {})
+        if service in installed:
+            installed.pop(service).unregister()
+        self._registry = registry
         self.requests = Counter(
             f"{service}_http_requests_total",
             "HTTP requests by method, matched route template ('unmatched' for none) and numeric status code.",
@@ -89,6 +103,12 @@ class Metrics:
         )
         for reason in AUTH_FAILURES:
             self.auth_failures.labels(reason).inc(0)
+        installed[service] = self
+
+    def unregister(self) -> None:
+        """Take this install's collectors off its registry."""
+        for collector in (self.requests, self.duration, self.auth_failures):
+            self._registry.unregister(collector)
 
     def observe(self, method: str, route: str, status: int, seconds: float) -> None:
         self.requests.labels(method if method in _METHODS else OTHER_METHOD, route, str(status)).inc()

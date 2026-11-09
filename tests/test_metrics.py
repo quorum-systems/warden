@@ -214,9 +214,26 @@ def test_no_registry_means_no_metrics_and_no_change(tmp_path: Path) -> None:
     assert {m.name for m in REGISTRY.collect()} == names  # the process-wide default registry is untouched too
 
 
-def test_a_second_install_on_one_registry_fails_loudly(h: Harness) -> None:
-    with pytest.raises(ValueError, match="svc_http_requests"):
-        install(FastAPI(), "svc", registry=h.registry)
+def test_a_second_install_on_one_registry_replaces_the_first(h: Harness) -> None:
+    """Tests build the app many times against one module-level registry; the live app's counts are the ones kept."""
+    h.client.post("/v1/big", headers=OK)
+    app = FastAPI()
+    second = install(app, "svc", registry=h.registry)
+
+    @app.get("/v1/y")
+    def y() -> dict[str, str]:
+        return {}
+
+    TestClient(app).get("/v1/y")
+    assert h.requests("POST", "/v1/big", "413") is None
+    assert h.requests("GET", "/v1/y", "200") == 1
+    assert second is not h.metrics
+
+
+def test_installs_for_two_services_share_a_registry(h: Harness) -> None:
+    install(FastAPI(), "other", registry=h.registry)
+    assert h.failures("missing") == 0
+    assert h.registry.get_sample_value("other_auth_failures_total", {"reason": "missing"}) == 0
 
 
 def test_a_service_keeping_its_own_auth_counter_collides() -> None:
