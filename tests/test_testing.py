@@ -111,9 +111,10 @@ def test_other_yaml_files_are_ignored(pytester: pytest.Pytester) -> None:
 
 def test_check_entry_review_date_boundary() -> None:
     entry = GOOD | {"review_by": dt.date(2026, 11, 30)}
-    check_entry(entry, Path("."), today=dt.date(2026, 11, 30))  # the review day itself is still in date
+    here, day_after = Path("."), dt.date(2026, 12, 1)
+    check_entry(entry, here, today=dt.date(2026, 11, 30))  # the review day itself is still in date
     with pytest.raises(AssertionError, match="past its review date"):
-        check_entry(entry, Path("."), today=dt.date(2026, 12, 1))
+        check_entry(entry, here, today=day_after)
 
 
 def test_check_entry_rejects_a_review_date_that_yaml_did_not_parse() -> None:
