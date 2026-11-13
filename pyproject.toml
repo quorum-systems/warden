@@ -8,7 +8,7 @@ dependencies = ["pyyaml==6.0.3"]
 [project.optional-dependencies]
 # The service side (ServiceAuth, install, enforce): warden.fastapi.
 # prometheus_client is only used when install() is given a registry; it lives here so the client side stays light.
-server = ["fastapi==0.162.0", "prometheus-client==0.26.0"]
+server = ["fastapi==0.162.3", "prometheus-client==0.26.0"]
 # The calling side (WardenAuth): warden.client. Never pulls in FastAPI.
 client = ["httpx==0.28.1"]
 
@@ -22,7 +22,7 @@ warden = "warden.cli:main"
 warden = "warden.testing"
 
 [dependency-groups]
-dev = ["fastapi==0.162.0", "prometheus-client==0.26.0", "httpx==0.28.1", "pytest==9.2.0", "ruff==0.17.4", "mypy==1.20.2", "types-pyyaml"]
+dev = ["fastapi==0.162.3", "prometheus-client==0.26.0", "httpx==0.28.1", "pytest==9.2.0", "ruff==0.17.4", "mypy==1.20.2", "types-pyyaml"]
 
 [build-system]
 requires = ["hatchling"]
