@@ -541,7 +541,7 @@ wheels = [
 
 [[package]]
 name = "warden"
-version = "0.2.0"
+version = "0.2.1"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },
@@ -569,9 +569,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", marker = "extra == 'server'", specifier = "==0.162.3" },
+    { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.162.0,<1" },
     { name = "httpx", marker = "extra == 'client'", specifier = "==0.28.1" },
-    { name = "prometheus-client", marker = "extra == 'server'", specifier = "==0.26.0" },
+    { name = "prometheus-client", marker = "extra == 'server'", specifier = ">=0.26.0,<1" },
     { name = "pyyaml", specifier = "==6.0.3" },
 ]
 provides-extras = ["server", "client"]

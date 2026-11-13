@@ -240,8 +240,9 @@ def test_a_service_keeping_its_own_auth_counter_collides() -> None:
     """The adoption trap: bowdler's old `bowdler_auth_failures_total` must be deleted when it passes a registry."""
     registry = CollectorRegistry()
     Counter("svc_auth_failures_total", "old, no labels", registry=registry)
+    app = FastAPI()
     with pytest.raises(ValueError, match="svc_auth_failures"):
-        install(FastAPI(), service="svc", registry=registry)
+        install(app, service="svc", registry=registry)
 
 
 def test_websocket_refusals_are_not_counted_and_do_not_break(tmp_path: Path) -> None:
