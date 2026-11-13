@@ -117,8 +117,9 @@ def test_check_entry_review_date_boundary() -> None:
 
 
 def test_check_entry_rejects_a_review_date_that_yaml_did_not_parse() -> None:
+    entry = GOOD | {"review_by": "2026-11-30 maybe"}
     with pytest.raises(AssertionError, match="must be a YAML date"):
-        check_entry(GOOD | {"review_by": "2026-11-30 maybe"}, Path("."))
+        check_entry(entry, Path("."))
 
 
 def test_check_schema_accepts_a_clean_list() -> None:
