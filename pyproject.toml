@@ -1,21 +1,28 @@
 [project]
 name = "warden"
-version = "0.1.2"
+version = "0.2.0"
 description = "Per-consumer API keys for Quorum services: grant model, server dependency and access log, calling client, and a CLI over a SOPS file synced to Vault."
 requires-python = ">=3.13"
 dependencies = ["pyyaml==6.0.3"]
 
 [project.optional-dependencies]
 # The service side (ServiceAuth, install, enforce): warden.fastapi.
-server = ["fastapi==0.162.0"]
+# prometheus_client is only used when install() is given a registry; it lives here so the client side stays light.
+server = ["fastapi==0.162.0", "prometheus-client==0.26.0"]
 # The calling side (WardenAuth): warden.client. Never pulls in FastAPI.
 client = ["httpx==0.28.1"]
 
 [project.scripts]
 warden = "warden.cli:main"
 
+# warden.testing is a pytest plugin for the services' test suites (debt ratchet collection, docs and route-guard checks).
+# Entry points belong to the wheel, not to an extra, so every environment with warden and pytest loads it. It is inert
+# unless a tests/debt.yaml exists, and imports FastAPI only inside assert_routes_guarded.
+[project.entry-points.pytest11]
+warden = "warden.testing"
+
 [dependency-groups]
-dev = ["fastapi==0.162.0", "httpx==0.28.1", "pytest==9.2.0", "ruff==0.17.4", "mypy==1.20.2", "types-pyyaml"]
+dev = ["fastapi==0.162.0", "prometheus-client==0.26.0", "httpx==0.28.1", "pytest==9.2.0", "ruff==0.17.4", "mypy==1.20.2", "types-pyyaml"]
 
 [build-system]
 requires = ["hatchling"]

@@ -12,6 +12,8 @@ from typing import Any
 
 import pytest
 
+pytest_plugins = ["pytester"]  # warden.testing is tested by running pytest on throwaway projects
+
 pytestmark = pytest.mark.skipif(shutil.which("sops") is None, reason="needs sops")
 
 
