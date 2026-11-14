@@ -2,5 +2,20 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>quorum-actions/ci-actions"
+  ],
+  "packageRules": [
+    {
+      "description": "Automerge everything but majors once the required checks are green (CI and Trivy, REQUIRED_CHECKS in platform scripts/devsecops/bootstrap.sh). main is not production: a release is a v* tag (the wheel published to the Gitea PyPI), and consumers take a range. Majors keep the dependency-dashboard approval from the preset; minimumReleaseAge (3 days) still applies. Gitea merges through its own auto-merge when the checks pass (platformAutomerge).",
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest",
+        "lockFileMaintenance"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    }
   ]
 }
