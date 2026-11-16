@@ -22,7 +22,7 @@ warden = "warden.cli:main"
 warden = "warden.testing"
 
 [dependency-groups]
-dev = ["fastapi==0.162.6", "prometheus-client==0.26.0", "httpx==0.28.1", "pytest==9.2.0", "ruff==0.17.5", "mypy==1.20.2", "types-pyyaml"]
+dev = ["fastapi==0.162.7", "prometheus-client==0.26.0", "httpx==0.28.1", "pytest==9.2.0", "ruff==0.17.5", "mypy==1.20.2", "types-pyyaml"]
 
 [build-system]
 requires = ["hatchling"]
