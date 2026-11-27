@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
       - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d  # v10.4.0
         with:
-          version: 0.13.9
+          version: 0.13.10
           enable-cache: true
       - name: sops and age (the CLI tests run the real binaries)
         env:
